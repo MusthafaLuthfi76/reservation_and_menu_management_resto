@@ -51,7 +51,7 @@ export default function Login() {
         </div>
       </div>
 
-      <div className="flex items-center justify-center p-8 md:p-16">
+      <div className="flex items-center justify-center p-6 sm:p-8 md:p-16">
         <form onSubmit={onSubmit} className="w-full max-w-sm space-y-6 fade-up" data-testid="admin-login-form">
           <div>
             <div className="label-eyebrow mb-3">Staff Sign-In</div>

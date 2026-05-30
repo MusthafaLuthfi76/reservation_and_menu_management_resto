@@ -138,7 +138,7 @@ export default function CustomerMenu() {
   return (
     <div className="min-h-screen bg-[#F9F8F6] pb-32" data-testid="customer-menu-page">
       {/* Hero */}
-      <div className="relative h-64 md:h-80 overflow-hidden">
+      <div className="relative h-56 sm:h-64 md:h-80 overflow-hidden">
         <img
           src="https://images.unsplash.com/photo-1512132411229-c30391241dd8?w=1600&q=80"
           alt=""
@@ -158,11 +158,13 @@ export default function CustomerMenu() {
 
       {/* Active order banner */}
       {activeOrder && (
-        <div className="bg-[#FDF6E3] border-y border-[#E5E0D8] px-6 py-3 flex items-center justify-between" data-testid="active-order-banner">
-          <div className="text-sm text-[#8B5A2B]">
-            <span className="font-semibold">Order in progress</span> · {activeOrder.items.reduce((s, i) => s + i.quantity, 0)} item(s) · {formatJPY(activeOrder.total)}
+        <div className="bg-[#FDF6E3] border-y border-[#E5E0D8] px-4 sm:px-6 py-3 flex items-center justify-between gap-3" data-testid="active-order-banner">
+          <div className="text-xs sm:text-sm text-[#8B5A2B] min-w-0">
+            <span className="font-semibold">Order in progress</span>
+            <span className="hidden sm:inline"> · {activeOrder.items.reduce((s, i) => s + i.quantity, 0)} item(s)</span>
+            <span> · {formatJPY(activeOrder.total)}</span>
           </div>
-          <Button onClick={() => setPayOpen(true)} size="sm" className="btn-aka rounded-sm h-9 px-4 text-xs" data-testid="open-payment-button">
+          <Button onClick={() => setPayOpen(true)} size="sm" className="btn-aka rounded-sm h-9 px-4 text-xs flex-shrink-0" data-testid="open-payment-button">
             Pay Now
           </Button>
         </div>
@@ -241,10 +243,12 @@ export default function CustomerMenu() {
         <button
           onClick={() => setCartOpen(true)}
           data-testid="cart-fab"
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 btn-aka rounded-sm px-6 py-4 shadow-xl flex items-center gap-4 z-30"
+          className="fixed bottom-4 sm:bottom-6 left-4 right-4 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 btn-aka rounded-sm px-5 py-3 sm:px-6 sm:py-4 shadow-xl flex items-center justify-between sm:justify-start gap-4 z-30 max-w-md mx-auto"
         >
-          <ShoppingBag size={18} />
-          <span className="text-sm font-semibold">{cartCount} item(s)</span>
+          <span className="flex items-center gap-2">
+            <ShoppingBag size={18} />
+            <span className="text-sm font-semibold">{cartCount} item(s)</span>
+          </span>
           <span className="font-serif-jp text-xl">{formatJPY(cartTotal)}</span>
         </button>
       )}

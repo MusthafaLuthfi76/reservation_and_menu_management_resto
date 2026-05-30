@@ -80,11 +80,11 @@ export default function MenuManagement() {
   const filtered = filter === "all" ? items : items.filter((i) => i.category === filter);
 
   return (
-    <div className="p-8 lg:p-12 fade-up" data-testid="menu-management-page">
-      <div className="flex items-end justify-between flex-wrap gap-4 mb-10">
+    <div className="p-4 md:p-8 lg:p-12 fade-up" data-testid="menu-management-page">
+      <div className="flex items-end justify-between flex-wrap gap-4 mb-8 md:mb-10">
         <div>
           <div className="label-eyebrow mb-3">Menu Management</div>
-          <h1 className="font-serif-jp text-4xl md:text-5xl">The Menu</h1>
+          <h1 className="font-serif-jp text-3xl md:text-4xl lg:text-5xl">The Menu</h1>
           <p className="text-sm text-[#8A817C] mt-2">Curate the list of dishes served at Tsuki.</p>
         </div>
         <Button onClick={openAdd} className="btn-aka rounded-sm h-11 px-6" data-testid="menu-add-button">
@@ -109,8 +109,9 @@ export default function MenuManagement() {
         ))}
       </div>
 
-      <div className="bg-white border border-[#E5E0D8] rounded-sm overflow-hidden">
-        <table className="w-full">
+      {/* Desktop / tablet table */}
+      <div className="hidden md:block bg-white border border-[#E5E0D8] rounded-sm overflow-x-auto">
+        <table className="w-full min-w-[640px]">
           <thead>
             <tr className="border-b border-[#E5E0D8] text-left">
               <th className="px-6 py-4 label-eyebrow">Item</th>
@@ -164,6 +165,52 @@ export default function MenuManagement() {
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* Mobile card list */}
+      <div className="md:hidden space-y-3">
+        {filtered.length === 0 && (
+          <div className="bg-white border border-[#E5E0D8] rounded-sm p-8 text-center text-sm text-[#8A817C]">
+            No items yet.
+          </div>
+        )}
+        {filtered.map((item) => (
+          <div key={item.id} className="bg-white border border-[#E5E0D8] rounded-sm p-4" data-testid={`menu-card-${item.id}`}>
+            <div className="flex gap-3">
+              {item.image_url ? (
+                <img src={item.image_url} alt={item.name} className="w-16 h-16 object-cover rounded-sm flex-shrink-0" />
+              ) : (
+                <div className="w-16 h-16 bg-[#F2F0EC] rounded-sm flex-shrink-0" />
+              )}
+              <div className="flex-1 min-w-0">
+                <div className="flex justify-between items-baseline gap-2">
+                  <div className="font-medium truncate">{item.name}</div>
+                  <div className="font-serif-jp text-base whitespace-nowrap">{formatJPY(item.price)}</div>
+                </div>
+                <div className="text-xs text-[#8A817C] capitalize mt-0.5">{item.category}</div>
+                <div className="mt-1">
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${
+                    item.available !== false
+                      ? "bg-[#F2F4EC] text-[#54662C]"
+                      : "bg-[#F3EBEB] text-[#8B4A4A]"
+                  }`}>
+                    {item.available !== false ? "Available" : "Hidden"}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="flex gap-4 mt-3 pt-3 border-t border-[#E5E0D8]">
+              <button onClick={() => openEdit(item)} data-testid={`menu-edit-${item.id}`}
+                className="inline-flex items-center gap-1 text-xs text-[#5C4033] hover:text-[#C93A3E]">
+                <Pencil size={14} /> Edit
+              </button>
+              <button onClick={() => onDelete(item)} data-testid={`menu-delete-${item.id}`}
+                className="inline-flex items-center gap-1 text-xs text-[#8A817C] hover:text-[#C93A3E]">
+                <Trash2 size={14} /> Delete
+              </button>
+            </div>
+          </div>
+        ))}
       </div>
 
       <Dialog open={open} onOpenChange={setOpen}>

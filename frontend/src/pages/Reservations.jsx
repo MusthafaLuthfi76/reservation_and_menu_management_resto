@@ -41,17 +41,19 @@ export default function Reservations() {
     .reduce((s, o) => s + (o.total || 0), 0);
 
   return (
-    <div className="p-8 lg:p-12 fade-up" data-testid="reservations-page">
-      <div className="mb-10">
+    <div className="p-4 md:p-8 lg:p-12 fade-up" data-testid="reservations-page">
+      <div className="mb-8 md:mb-10">
         <div className="label-eyebrow mb-3">Service Floor</div>
-        <h1 className="font-serif-jp text-4xl md:text-5xl">Reservations</h1>
+        <h1 className="font-serif-jp text-3xl md:text-4xl lg:text-5xl">Reservations</h1>
         <p className="text-sm text-[#8A817C] mt-2">Active orders, totals, and payment status — at a glance.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 mb-8 md:mb-10">
         <StatCard label="Active Orders" value={activeCount} testId="stat-active" />
         <StatCard label="Paid Today" value={paidCount} testId="stat-paid" />
-        <StatCard label="Revenue" value={formatJPY(todaysRevenue)} testId="stat-revenue" mono />
+        <div className="col-span-2 md:col-span-1">
+          <StatCard label="Revenue" value={formatJPY(todaysRevenue)} testId="stat-revenue" mono />
+        </div>
       </div>
 
       <div className="flex gap-2 mb-6">
@@ -75,7 +77,7 @@ export default function Reservations() {
         ))}
       </div>
 
-      <div className="bg-white border border-[#E5E0D8] rounded-sm overflow-x-auto">
+      <div className="hidden md:block bg-white border border-[#E5E0D8] rounded-sm overflow-x-auto">
         <table className="w-full min-w-[800px]">
           <thead>
             <tr className="border-b border-[#E5E0D8] text-left">
@@ -116,6 +118,33 @@ export default function Reservations() {
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* Mobile order cards */}
+      <div className="md:hidden space-y-3">
+        {filtered.length === 0 && (
+          <div className="bg-white border border-[#E5E0D8] rounded-sm p-8 text-center text-sm text-[#8A817C]">No orders.</div>
+        )}
+        {filtered.map((o) => (
+          <button
+            key={o.id}
+            onClick={() => setSelected(o)}
+            data-testid={`order-card-${o.id}`}
+            className="w-full text-left bg-white border border-[#E5E0D8] rounded-sm p-4 hover:border-[#1C1C1C] transition-colors"
+          >
+            <div className="flex justify-between items-start gap-3">
+              <div>
+                <div className="font-serif-jp text-2xl leading-none">#{o.table_number}</div>
+                <div className="text-xs text-[#8A817C] mt-1">{format(new Date(o.start_time), "MMM d, HH:mm")}</div>
+              </div>
+              <StatusBadge status={o.status} />
+            </div>
+            <div className="mt-3 flex justify-between items-baseline">
+              <div className="text-xs text-[#5C4033]">{o.items.reduce((s, i) => s + i.quantity, 0)} item(s)</div>
+              <div className="font-serif-jp text-xl">{formatJPY(o.total)}</div>
+            </div>
+          </button>
+        ))}
       </div>
 
       <Dialog open={!!selected} onOpenChange={(o) => !o && setSelected(null)}>
@@ -185,9 +214,9 @@ export default function Reservations() {
 
 function StatCard({ label, value, mono, testId }) {
   return (
-    <div className="bg-white border border-[#E5E0D8] rounded-sm p-6" data-testid={testId}>
-      <div className="label-eyebrow mb-3">{label}</div>
-      <div className={`${mono ? "font-serif-jp text-3xl" : "font-serif-jp text-4xl"}`}>{value}</div>
+    <div className="bg-white border border-[#E5E0D8] rounded-sm p-4 md:p-6" data-testid={testId}>
+      <div className="label-eyebrow mb-2 md:mb-3">{label}</div>
+      <div className={`${mono ? "font-serif-jp text-2xl md:text-3xl" : "font-serif-jp text-3xl md:text-4xl"}`}>{value}</div>
     </div>
   );
 }

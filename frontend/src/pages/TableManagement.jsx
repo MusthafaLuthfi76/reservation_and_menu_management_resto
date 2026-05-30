@@ -52,16 +52,16 @@ export default function TableManagement() {
   };
 
   return (
-    <div className="p-8 lg:p-12 fade-up" data-testid="tables-page">
-      <div className="mb-10">
+    <div className="p-4 md:p-8 lg:p-12 fade-up" data-testid="tables-page">
+      <div className="mb-8 md:mb-10">
         <div className="label-eyebrow mb-3">Tables &amp; QR Codes</div>
-        <h1 className="font-serif-jp text-4xl md:text-5xl">Tables</h1>
+        <h1 className="font-serif-jp text-3xl md:text-4xl lg:text-5xl">Tables</h1>
         <p className="text-sm text-[#8A817C] mt-2">
           Generate a QR code per table. Scanning opens the menu pre-filled with the table number.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
         <form onSubmit={onAdd} className="bg-white border border-[#E5E0D8] rounded-sm p-6 space-y-4 h-fit" data-testid="add-table-form">
           <div className="label-eyebrow">Add Table</div>
           <div>
@@ -79,13 +79,13 @@ export default function TableManagement() {
           </Button>
         </form>
 
-        <div className="lg:col-span-2 bg-white border border-[#E5E0D8] rounded-sm overflow-hidden">
-          <table className="w-full">
+        <div className="lg:col-span-2 bg-white border border-[#E5E0D8] rounded-sm overflow-x-auto">
+          <table className="w-full min-w-[400px]">
             <thead>
               <tr className="border-b border-[#E5E0D8] text-left">
-                <th className="px-6 py-4 label-eyebrow">No.</th>
-                <th className="px-6 py-4 label-eyebrow">Label</th>
-                <th className="px-6 py-4 label-eyebrow text-right">Actions</th>
+                <th className="px-4 sm:px-6 py-4 label-eyebrow">No.</th>
+                <th className="px-4 sm:px-6 py-4 label-eyebrow">Label</th>
+                <th className="px-4 sm:px-6 py-4 label-eyebrow text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -94,11 +94,11 @@ export default function TableManagement() {
               )}
               {tables.map((t) => (
                 <tr key={t.id} className="border-b border-[#E5E0D8] last:border-0" data-testid={`table-row-${t.id}`}>
-                  <td className="px-6 py-4 font-serif-jp text-2xl">#{t.table_number}</td>
-                  <td className="px-6 py-4 text-sm text-[#5C4033]">{t.label || "—"}</td>
-                  <td className="px-6 py-4 text-right">
+                  <td className="px-4 sm:px-6 py-4 font-serif-jp text-xl sm:text-2xl">#{t.table_number}</td>
+                  <td className="px-4 sm:px-6 py-4 text-sm text-[#5C4033]">{t.label || "—"}</td>
+                  <td className="px-4 sm:px-6 py-4 text-right whitespace-nowrap">
                     <button onClick={() => setSelectedTable(t)} data-testid={`table-qr-${t.id}`}
-                      className="inline-flex items-center gap-1 text-xs text-[#5C4033] hover:text-[#C93A3E] mr-4">
+                      className="inline-flex items-center gap-1 text-xs text-[#5C4033] hover:text-[#C93A3E] mr-3 sm:mr-4">
                       <QrCode size={14} /> QR
                     </button>
                     <button onClick={() => onDelete(t)} data-testid={`table-delete-${t.id}`}
