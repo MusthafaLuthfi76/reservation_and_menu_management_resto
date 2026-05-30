@@ -1,0 +1,112 @@
+{
+  "project_domain": "Japanese Restaurant POS & Order System",
+  "theme": "Light",
+  "archetype": "1 (Organic & Earthy)",
+  "design_philosophy": "Omotenashi (Japanese Hospitality). Minimalist, refined typography, washi paper textures, flat structural surfaces over heavy shadows. High visual impact with generous negative space.",
+  "colors": {
+    "background_base": "#F9F8F6",
+    "surface": "#FFFFFF",
+    "text_primary": "#1C1C1C",
+    "text_secondary": "#5C4033",
+    "text_muted": "#8A817C",
+    "primary_action": "#C93A3E",
+    "primary_hover": "#A32A2D",
+    "border_subtle": "#E5E0D8",
+    "status_paid_bg": "#F2F4EC",
+    "status_paid_text": "#54662C",
+    "status_ordered_bg": "#FDF6E3",
+    "status_ordered_text": "#8B5A2B"
+  },
+  "typography": {
+    "google_fonts_imports": [
+      "@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&display=swap');",
+      "@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600&display=swap');"
+    ],
+    "headings": {
+      "font_family": "font-serif ('Cormorant Garamond', serif)",
+      "weights": "font-medium to font-bold",
+      "tracking": "tracking-tight"
+    },
+    "body": {
+      "font_family": "font-sans ('Manrope', sans-serif)",
+      "weights": "font-light to font-medium",
+      "tracking": "tracking-normal"
+    },
+    "hierarchy": {
+      "h1": "text-4xl md:text-5xl lg:text-6xl tracking-tight leading-none",
+      "h2": "text-2xl md:text-3xl lg:text-4xl tracking-tight",
+      "h3": "text-xl md:text-2xl",
+      "body": "text-base leading-relaxed",
+      "label": "text-xs tracking-[0.15em] uppercase font-semibold text-text_muted"
+    }
+  },
+  "spacing_and_layout": {
+    "general": "Use generous spacing. Containers must use p-6, p-8, or p-12. Avoid cramped layouts.",
+    "dashboard_grid": "Grid layout for POS (Control Room Grid). Tight gaps (gap-4). Span summary cards across top, data tables span full width below.",
+    "customer_menu_grid": "Mobile-first bento grid. 1 column for mobile, 2 for tablet. Wide gaps (gap-6 or gap-8).",
+    "border_radius": "rounded-sm (2px) - sharp, clean, structural aesthetics resembling traditional Japanese woodworking."
+  },
+  "components_strategy": {
+    "buttons": "Flat background. No gradients. primary uses Aka Red (#C93A3E) with white text. Hover: background darkens to #A32A2D, no vertical lift. Use data-testid on all buttons.",
+    "cards": "Flat background, 1px solid border (#E5E0D8). Very subtle shadow on hover only. No heavy drop shadows.",
+    "inputs": "Shadcn UI inputs. 1px solid border, focus ring in Aka Red (#C93A3E).",
+    "tables": "Clean, row borders only. No vertical dividers. Ample row padding (py-4).",
+    "navigation": "Admin: Sidebar with dark Koge Brown background and minimal lucide icons. Customer: Sticky horizontal category list with active state underlined in Aka Red.",
+    "badges": "Flat background, pill shape (rounded-full). Padding px-3 py-1 text-xs font-semibold."
+  },
+  "media": {
+    "login_bg": {
+      "url": "https://static.prod-images.emergentagent.com/jobs/2f57949b-850e-45f2-821a-37f7619e4a5c/images/77d79035e50340634e30acbc5051fe105574b01fb52a32f313c65202b664a62e.png",
+      "description": "High-end minimal Japanese restaurant interior. Use as the background for the Admin Login screen. Must have a black/50 or white/40 overlay for form readability."
+    },
+    "washi_texture": {
+      "url": "https://static.prod-images.emergentagent.com/jobs/2f57949b-850e-45f2-821a-37f7619e4a5c/images/1cff7e58e00f45cbf7271a2d89abd11346bcd639f40610f83242a3f58050ce83.png",
+      "description": "Subtle washi paper texture. Can be used as a repeating background pattern for the customer menu or admin dashboard body to give organic feel."
+    },
+    "qr_scan_prompt": {
+      "url": "https://static.prod-images.emergentagent.com/jobs/2f57949b-850e-45f2-821a-37f7619e4a5c/images/a53790f5f56707eb38f09985371c957406ab8033fbeb101611eb580efc3a604f.png",
+      "description": "QR Code display graphic. Use in the Admin Table Management where the staff generates/prints the QR codes for tables."
+    },
+    "menu_sushi": {
+      "url": "https://static.prod-images.emergentagent.com/jobs/2f57949b-850e-45f2-821a-37f7619e4a5c/images/08b1c802122f6e0809bc06e2d5ba2e6225c1e179ad73930617443be2312b8472.png",
+      "description": "Premium sushi placeholder. Use for Main Course / Sushi category items in the customer menu."
+    },
+    "menu_ramen": {
+      "url": "https://static.prod-images.emergentagent.com/jobs/2f57949b-850e-45f2-821a-37f7619e4a5c/images/6c3776b3b50b83103f50895f117fbee0b15aa9ba1a50c415ec68b46aca032f50.png",
+      "description": "Ramen bowl placeholder. Use for Hot Dishes / Main Course items."
+    },
+    "menu_matcha": {
+      "url": "https://static.prod-images.emergentagent.com/jobs/2f57949b-850e-45f2-821a-37f7619e4a5c/images/0f18be09166263812115f697911d5728030f1f39334d1f13c34ee3f2f6fc0190.png",
+      "description": "Matcha dessert placeholder. Use for Dessert category."
+    },
+    "chef_plating": {
+      "url": "https://images.unsplash.com/photo-1512132411229-c30391241dd8?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2MzR8MHwxfHNlYXJjaHwyfHxKYXBhbmVzZSUyMGNoZWYlMjBwbGF0aW5nJTIwZm9vZCUyMG1pbmltYWx8ZW58MHx8fHwxNzgwMTEwODc5fDA&ixlib=rb-4.1.0&q=85",
+      "description": "Chef plating food. Use as the Hero Image for the customer-facing menu page."
+    }
+  },
+  "specific_pages_instructions": {
+    "admin_login": "Split layout: left side is the login_bg image covering the pane, right side is the login form. Form must use pure white surface with sharp edges.",
+    "admin_dashboard_layout": "Sidebar navigation (dark Koge Brown or Sumi Black background with white text) and a main content area (Shiro White background).",
+    "menu_management": "List of menu items with image thumbnails, categories, and JPY price. Use a slide-over (Sheet) or Dialog for Add/Edit menu item. Include upload/image URL field.",
+    "reservations_orders": "Dashboard view. Top row: Key metrics (Active Orders, Revenue JPY). Main table: Active orders. Columns: Table Number, Start Time, Finish Time, Total (¥), Items List, Status (Ordered/Paid). Actions: Mark as Paid.",
+    "table_management": "Simple view to select a table number and generate a QR code. Display the qr_scan_prompt image gracefully.",
+    "customer_menu_hero": "Hero banner at the top showing the chef_plating image, overlaid with elegant serif text welcoming the customer (e.g., 'Table X - Welcome').",
+    "customer_menu_categories": "Sticky horizontal scrollable list below hero for categories (Appetizer, Main Course, Dessert, Drinks).",
+    "customer_menu_items": "Vertical list or 2-col grid of items. Each item card shows image on left, title/price/description on right, with an elegant 'Add' button.",
+    "customer_cart_checkout": "Floating Action Button (FAB) showing item count and total price. Clicking opens a full-screen or slide-up Cart drawer. Cart shows items, allows quantity adjust, and has 'Place Order' CTA. If order exists, 'Add to Order' CTA.",
+    "customer_payment": "Once ordered, show order summary. Two buttons for payment: 'Pay via QRIS' (opens a mock QR modal) and 'Pay at Cashier'."
+  },
+  "testing_attributes": {
+    "rules": "All interactive and key informational elements MUST include a data-testid attribute in kebab-case, based on role (e.g., data-testid='admin-login-button', data-testid='add-to-cart-button', data-testid='checkout-qris-button')."
+  },
+  "instructions_to_main_agent": [
+    "Use JavaScript (.js or .jsx files), not TypeScript (.ts/.tsx).",
+    "Use Lucide React for icons.",
+    "Install and use 'date-fns' for formatting datetime fields.",
+    "Currency formatting MUST use JPY (¥). Example: new Intl.NumberFormat('ja-JP', { style: 'currency', currency: 'JPY' }).format(price)",
+    "Implement JWT auth for admin routes. Protect Admin dashboard layout.",
+    "Use mock data initially for the menu if backend is not ready, utilizing the media URLs provided in this JSON.",
+    "Build Shadcn UI components manually via generic Tailwind HTML if the CLI fails, or use standard Shadcn installation.",
+    "Customer app should read table number from URL params (e.g., /menu?table=5)."
+  ]
+}
