@@ -21,23 +21,29 @@ export default function Reservations() {
     return () => clearInterval(t);
   }, []);
 
-  const markPaid = async (order, method) => {
+  const markStatus = async (order, status, paymentMethod) => {
     try {
-      await api.post(`/orders/${order.id}/pay`, { payment_method: method });
-      toast.success(`Order marked paid (${method})`);
+      await api.patch(`/orders/${order.id}/status`, {
+        status,
+        payment_method: paymentMethod,
+      });
+      toast.success(`Order marked ${status}`);
       setSelected(null);
       load();
     } catch (err) {
-      toast.error(err?.response?.data?.detail || "Failed to mark paid");
+      toast.error(err?.response?.data?.detail || "Failed to update order status");
     }
   };
 
-  const filtered = filter === "all" ? orders : orders.filter((o) => o.status === filter);
+  const filtered = filter === "all"
+    ? orders
+    : orders.filter((o) => (filter === "unpaid" ? ["unpaid", "ordered"].includes(o.status) : o.status === filter));
 
-  const activeCount = orders.filter((o) => o.status === "ordered").length;
+  const activeCount = orders.filter((o) => o.status === "unpaid" || o.status === "ordered").length;
   const paidCount = orders.filter((o) => o.status === "paid").length;
+  const completeCount = orders.filter((o) => o.status === "complete").length;
   const todaysRevenue = orders
-    .filter((o) => o.status === "paid")
+    .filter((o) => ["paid", "complete"].includes(o.status))
     .reduce((s, o) => s + (o.total || 0), 0);
 
   return (
@@ -56,11 +62,18 @@ export default function Reservations() {
         </div>
       </div>
 
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 mb-8 md:mb-10">
+        <StatCard label="Unpaid Queue" value={activeCount} testId="stat-unpaid" />
+        <StatCard label="Paid" value={paidCount} testId="stat-paid-count" />
+        <StatCard label="Complete" value={completeCount} testId="stat-complete" />
+      </div>
+
       <div className="flex gap-2 mb-6">
         {[
           { v: "all", l: "All" },
-          { v: "ordered", l: "Active" },
+          { v: "unpaid", l: "Unpaid" },
           { v: "paid", l: "Paid" },
+          { v: "complete", l: "Complete" },
         ].map((b) => (
           <button
             key={b.v}
@@ -187,21 +200,29 @@ export default function Reservations() {
                 <div className="font-serif-jp text-3xl">{formatJPY(selected.total)}</div>
               </div>
 
-              {selected.status === "ordered" && (
+              {selected.status === "unpaid" || selected.status === "ordered" ? (
                 <div className="flex gap-2 pt-4">
-                  <Button onClick={() => markPaid(selected, "cashier")} variant="outline"
+                  <Button onClick={() => markStatus(selected, "paid", "verified")} variant="outline"
                     className="flex-1 rounded-sm h-11" data-testid="admin-pay-cashier">
-                    Paid at Cashier
+                    Verify Paid
                   </Button>
-                  <Button onClick={() => markPaid(selected, "qris")}
-                    className="btn-aka flex-1 rounded-sm h-11" data-testid="admin-pay-qris">
-                    Paid via QRIS
+                </div>
+              ) : null}
+              {selected.status === "paid" && (
+                <div className="flex gap-2 pt-4">
+                  <Button onClick={() => markStatus(selected, "complete")} className="btn-aka flex-1 rounded-sm h-11" data-testid="admin-complete">
+                    Mark Complete
                   </Button>
                 </div>
               )}
-              {selected.status === "paid" && (
+              {selected.status === "complete" && (
                 <div className="text-xs text-[#8A817C]">
-                  Paid via {selected.payment_method}.
+                  Order completed.
+                </div>
+              )}
+              {selected.status === "paid" && selected.payment_method && (
+                <div className="text-xs text-[#8A817C]">
+                  {selected.payment_method === "verified" ? "Verified by staff." : `Paid via ${selected.payment_method}.`}
                 </div>
               )}
             </div>
@@ -222,12 +243,18 @@ function StatCard({ label, value, mono, testId }) {
 }
 
 function StatusBadge({ status }) {
-  const isPaid = status === "paid";
+  const normalized = status === "ordered" ? "unpaid" : status;
+  const isPaid = normalized === "paid";
+  const isComplete = normalized === "complete";
   return (
     <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-      isPaid ? "bg-[#F2F4EC] text-[#54662C]" : "bg-[#FDF6E3] text-[#8B5A2B]"
+      isComplete
+        ? "bg-[#EEF2F7] text-[#425466]"
+        : isPaid
+          ? "bg-[#F2F4EC] text-[#54662C]"
+          : "bg-[#FDF6E3] text-[#8B5A2B]"
     }`}>
-      {isPaid ? "Paid" : "Ordered"}
+      {isComplete ? "Complete" : isPaid ? "Paid" : "Unpaid"}
     </span>
   );
 }

@@ -7,12 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../components/
 import { toast } from "sonner";
 import { Plus, Minus, ShoppingBag, X, ArrowLeft } from "lucide-react";
 
-const CATEGORIES = [
-  { value: "appetizer", label: "Appetizer" },
-  { value: "main", label: "Main" },
-  { value: "dessert", label: "Dessert" },
-  { value: "drinks", label: "Drinks" },
-];
+
 
 export default function CustomerMenu() {
   const [params] = useSearchParams();
@@ -20,21 +15,26 @@ export default function CustomerMenu() {
   const nav = useNavigate();
 
   const [menu, setMenu] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [cart, setCart] = useState({}); // {menu_item_id: qty}
   const [activeOrder, setActiveOrder] = useState(null);
-  const [activeCategory, setActiveCategory] = useState("appetizer");
+  const [activeCategory, setActiveCategory] = useState("");
   const [cartOpen, setCartOpen] = useState(false);
   const [payOpen, setPayOpen] = useState(false);
   const [qrisOpen, setQrisOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   const loadAll = async () => {
-    const [m, o] = await Promise.all([
+    const [m, o, c] = await Promise.all([
       api.get("/menu"),
       api.get(`/orders/active`, { params: { table_number: tableNumber } }),
+      api.get("/categories"),
     ]);
     setMenu(m.data.filter((i) => i.available !== false));
     setActiveOrder(o.data || null);
+    const cats = c.data.map(cat => ({ value: cat.slug, label: cat.name }));
+    setCategories(cats);
+    if (cats.length > 0 && !activeCategory) setActiveCategory(cats[0].value);
   };
 
   useEffect(() => {
@@ -43,10 +43,10 @@ export default function CustomerMenu() {
 
   const grouped = useMemo(() => {
     const g = {};
-    CATEGORIES.forEach((c) => (g[c.value] = []));
+    categories.forEach((c) => (g[c.value] = []));
     menu.forEach((i) => { if (g[i.category]) g[i.category].push(i); });
     return g;
-  }, [menu]);
+  }, [menu, categories]);
 
   const cartItems = Object.entries(cart)
     .map(([id, qty]) => {
@@ -68,6 +68,7 @@ export default function CustomerMenu() {
   const submitOrder = async () => {
     if (cartItems.length === 0) return;
     setSubmitting(true);
+    const hadActiveOrder = !!activeOrder;
     try {
       const items = cartItems.map((i) => ({ menu_item_id: i.id, quantity: i.quantity }));
       if (activeOrder) {
@@ -81,6 +82,7 @@ export default function CustomerMenu() {
       }
       setCart({});
       setCartOpen(false);
+      if (!hadActiveOrder) setPayOpen(true);
     } catch (err) {
       toast.error(err?.response?.data?.detail || "Order failed");
     } finally {
@@ -121,7 +123,7 @@ export default function CustomerMenu() {
     );
   }
 
-  if (activeOrder && activeOrder.status === "paid") {
+  if (activeOrder && ["paid", "complete"].includes(activeOrder.status)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#F9F8F6] p-8" data-testid="paid-screen">
         <div className="max-w-sm text-center">
@@ -173,7 +175,7 @@ export default function CustomerMenu() {
       {/* Category nav */}
       <div className="sticky top-0 z-20 bg-[#F9F8F6]/95 backdrop-blur border-b border-[#E5E0D8]">
         <div className="flex gap-1 overflow-x-auto no-scrollbar px-4 py-3">
-          {CATEGORIES.map((c) => (
+          {categories.map((c) => (
             <button
               key={c.value}
               onClick={() => {
@@ -195,7 +197,7 @@ export default function CustomerMenu() {
 
       {/* Items */}
       <div className="max-w-3xl mx-auto p-4 md:p-8 space-y-12">
-        {CATEGORIES.map((c) => (
+        {categories.map((c) => (
           <section key={c.value} id={`cat-${c.value}`}>
             <div className="label-eyebrow mb-4">{c.label}</div>
             <div className="space-y-4">

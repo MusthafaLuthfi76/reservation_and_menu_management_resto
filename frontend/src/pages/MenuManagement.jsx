@@ -12,25 +12,22 @@ import { Switch } from "../components/ui/switch";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 
-const CATEGORIES = [
-  { value: "appetizer", label: "Appetizer" },
-  { value: "main", label: "Main Course" },
-  { value: "dessert", label: "Dessert" },
-  { value: "drinks", label: "Drinks" },
-];
+
 
 const emptyForm = { name: "", description: "", price: "", category: "main", image_url: "", available: true };
 
 export default function MenuManagement() {
   const [items, setItems] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [filter, setFilter] = useState("all");
 
   const load = async () => {
-    const { data } = await api.get("/menu");
-    setItems(data);
+    const [menuRes, catRes] = await Promise.all([api.get("/menu"), api.get("/categories")]);
+    setItems(menuRes.data);
+    setCategories(catRes.data.map(c => ({ value: c.slug, label: c.name })));
   };
   useEffect(() => { load(); }, []);
 
@@ -46,6 +43,16 @@ export default function MenuManagement() {
       available: item.available !== false,
     });
     setOpen(true);
+  };
+
+  const onImageUpload = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setForm((current) => ({ ...current, image_url: String(reader.result || "") }));
+    };
+    reader.readAsDataURL(file);
   };
 
   const onSave = async (e) => {
@@ -93,7 +100,7 @@ export default function MenuManagement() {
       </div>
 
       <div className="flex gap-2 mb-8 overflow-x-auto no-scrollbar">
-        {[{ value: "all", label: "All" }, ...CATEGORIES].map((c) => (
+        {[{ value: "all", label: "All" }, ...categories].map((c) => (
           <button
             key={c.value}
             onClick={() => setFilter(c.value)}
@@ -245,16 +252,34 @@ export default function MenuManagement() {
                 <Select value={form.category} onValueChange={(v) => setForm({ ...form, category: v })}>
                   <SelectTrigger className="rounded-sm mt-2" data-testid="menu-form-category"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    {CATEGORIES.map((c) => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
+                    {categories.map((c) => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
             </div>
-            <div>
-              <Label className="label-eyebrow">Image URL</Label>
-              <Input className="rounded-sm mt-2" value={form.image_url}
-                onChange={(e) => setForm({ ...form, image_url: e.target.value })}
-                data-testid="menu-form-image" placeholder="https://..." />
+            <div className="space-y-3">
+              <div>
+                <Label className="label-eyebrow">Image URL</Label>
+                <Input className="rounded-sm mt-2" value={form.image_url}
+                  onChange={(e) => setForm({ ...form, image_url: e.target.value })}
+                  data-testid="menu-form-image" placeholder="https://... or paste a data URL" />
+              </div>
+              <div>
+                <Label className="label-eyebrow">Upload Image from Computer</Label>
+                <Input
+                  type="file"
+                  accept="image/*"
+                  className="rounded-sm mt-2"
+                  onChange={onImageUpload}
+                  data-testid="menu-form-image-upload"
+                />
+              </div>
+              {form.image_url && (
+                <div className="border border-dashed border-[#E5E0D8] rounded-sm p-3 bg-[#F9F8F6]">
+                  <div className="text-[10px] uppercase tracking-[0.2em] text-[#8A817C] mb-2">Preview</div>
+                  <img src={form.image_url} alt="Menu preview" className="w-full h-40 object-cover rounded-sm" />
+                </div>
+              )}
             </div>
             <div className="flex items-center justify-between pt-2">
               <Label className="label-eyebrow">Available</Label>

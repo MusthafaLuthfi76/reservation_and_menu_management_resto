@@ -9,6 +9,7 @@ import AdminLayout from "./pages/AdminLayout";
 import Reservations from "./pages/Reservations";
 import MenuManagement from "./pages/MenuManagement";
 import TableManagement from "./pages/TableManagement";
+import CategoryManagement from "./pages/CategoryManagement";
 import CustomerMenu from "./pages/CustomerMenu";
 
 function App() {
@@ -31,6 +32,7 @@ function App() {
             <Route index element={<Reservations />} />
             <Route path="menu" element={<MenuManagement />} />
             <Route path="tables" element={<TableManagement />} />
+            <Route path="categories" element={<CategoryManagement />} />
           </Route>
           <Route path="*" element={<Navigate to="/menu" replace />} />
         </Routes>
