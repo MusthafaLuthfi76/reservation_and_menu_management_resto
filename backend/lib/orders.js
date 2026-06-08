@@ -16,6 +16,11 @@ async function buildOrderItems(items) {
       e.status = 400;
       throw e;
     }
+    if (menu.available === false) {
+      const e = new Error(`Menu item out of stock: ${it.menu_item_id}`);
+      e.status = 400;
+      throw e;
+    }
     result.push({
       menu_item_id: menu.id,
       name: menu.name,
