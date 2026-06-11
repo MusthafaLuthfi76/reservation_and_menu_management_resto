@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, useCallback } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import api, { formatJPY } from "../lib/api";
 import { Button } from "../components/ui/button";
@@ -33,12 +33,12 @@ export default function CustomerMenu() {
       api.get(`/orders/active`, { params: { table_number: tableNumber } }),
       api.get("/categories"),
     ]);
-    setMenu(m.data.filter((i) => i.available !== false));
+    setMenu(m.data);
     setActiveOrder(o.data || null);
     const cats = c.data.map(cat => ({ value: cat.slug, label: cat.name }));
     setCategories(cats);
     if (cats.length > 0 && !activeCategory) setActiveCategory(cats[0].value);
-  }, [tableNumber, activeCategory]);
+  }, [activeCategory, tableNumber]);
 
   useEffect(() => {
     if (tableNumber) loadAll();
@@ -61,7 +61,11 @@ export default function CustomerMenu() {
   const cartTotal = cartItems.reduce((s, i) => s + i.price * i.quantity, 0);
   const cartCount = cartItems.reduce((s, i) => s + i.quantity, 0);
 
-  const inc = (id) => setCart((c) => ({ ...c, [id]: (c[id] || 0) + 1 }));
+  const inc = (id) => setCart((c) => {
+    const item = menu.find((x) => x.id === id);
+    if (item?.available === false) return c;
+    return { ...c, [id]: (c[id] || 0) + 1 };
+  });
   const dec = (id) => setCart((c) => {
     const next = { ...c, [id]: Math.max(0, (c[id] || 0) - 1) };
     if (next[id] === 0) delete next[id];
@@ -70,6 +74,10 @@ export default function CustomerMenu() {
 
   const submitOrder = async () => {
     if (cartItems.length === 0) return;
+    if (cartItems.some((item) => item.available === false)) {
+      toast.error("Some items are out of stock. Remove them before ordering.");
+      return;
+    }
     setSubmitting(true);
     const hadActiveOrder = !!activeOrder;
     try {
@@ -222,19 +230,24 @@ export default function CustomerMenu() {
                       <h3 className="font-serif-jp text-xl md:text-2xl">{item.name}</h3>
                       <div className="font-serif-jp text-lg whitespace-nowrap">{formatJPY(item.price)}</div>
                     </div>
+                    {item.available === false && (
+                      <div className="mt-2 inline-flex items-center rounded-full border border-[#C93A3E]/20 bg-[#C93A3E]/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-[#C93A3E]">
+                        Out of stock
+                      </div>
+                    )}
                     <p className="text-xs text-[#8A817C] mt-1 line-clamp-2">{item.description}</p>
                     <div className="mt-3 flex justify-end">
                       {cart[item.id] ? (
                         <div className="flex items-center gap-3 border border-[#E5E0D8] rounded-sm">
                           <button onClick={() => dec(item.id)} className="w-9 h-9 flex items-center justify-center hover:bg-[#F2F0EC]" data-testid={`dec-${item.id}`}><Minus size={14} /></button>
                           <span className="text-sm font-semibold w-6 text-center">{cart[item.id]}</span>
-                          <button onClick={() => inc(item.id)} className="w-9 h-9 flex items-center justify-center hover:bg-[#F2F0EC]" data-testid={`inc-${item.id}`}><Plus size={14} /></button>
+                          <button onClick={() => inc(item.id)} disabled={item.available === false} className="w-9 h-9 flex items-center justify-center hover:bg-[#F2F0EC] disabled:cursor-not-allowed disabled:opacity-40" data-testid={`inc-${item.id}`}><Plus size={14} /></button>
                         </div>
                       ) : (
-                        <Button onClick={() => inc(item.id)} variant="outline"
-                          className="rounded-sm h-9 px-4 text-xs border-[#1C1C1C] hover:bg-[#1C1C1C] hover:text-white"
+                        <Button onClick={() => inc(item.id)} variant="outline" disabled={item.available === false}
+                          className="rounded-sm h-9 px-4 text-xs border-[#1C1C1C] hover:bg-[#1C1C1C] hover:text-white disabled:border-[#B8B1A8] disabled:text-[#B8B1A8] disabled:bg-transparent"
                           data-testid={`add-to-cart-${item.id}`}>
-                          Add
+                          {item.available === false ? "Out of stock" : "Add"}
                         </Button>
                       )}
                     </div>
@@ -275,11 +288,14 @@ export default function CustomerMenu() {
                 <div className="flex-1">
                   <div className="font-medium text-sm">{i.name}</div>
                   <div className="text-xs text-[#8A817C]">{formatJPY(i.price)} each</div>
+                  {i.available === false && (
+                    <div className="mt-1 text-[11px] font-semibold uppercase tracking-wider text-[#C93A3E]">Out of stock</div>
+                  )}
                 </div>
                 <div className="flex items-center gap-2 border border-[#E5E0D8] rounded-sm">
                   <button onClick={() => dec(i.id)} className="w-8 h-8 flex items-center justify-center"><Minus size={14} /></button>
                   <span className="text-sm font-semibold w-6 text-center">{i.quantity}</span>
-                  <button onClick={() => inc(i.id)} className="w-8 h-8 flex items-center justify-center"><Plus size={14} /></button>
+                  <button onClick={() => inc(i.id)} disabled={i.available === false} className="w-8 h-8 flex items-center justify-center disabled:cursor-not-allowed disabled:opacity-40"><Plus size={14} /></button>
                 </div>
                 <div className="font-serif-jp text-lg ml-4 w-20 text-right">{formatJPY(i.price * i.quantity)}</div>
               </div>
@@ -290,7 +306,7 @@ export default function CustomerMenu() {
             <div className="label-eyebrow">Subtotal</div>
             <div className="font-serif-jp text-3xl">{formatJPY(cartTotal)}</div>
           </div>
-          <Button onClick={submitOrder} disabled={submitting || cartItems.length === 0}
+          <Button onClick={submitOrder} disabled={submitting || cartItems.length === 0 || cartItems.some((item) => item.available === false)}
             className="btn-aka w-full h-12 rounded-sm tracking-wide" data-testid="place-order-button">
             {submitting ? "Placing…" : activeOrder ? "Add to Order" : "Place Order"}
           </Button>
