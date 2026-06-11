@@ -1,0 +1,17 @@
+{
+  "welcome!": "Welcome!",
+  "table": "Table",
+  "menu": "Menu",
+  "order": "Order",
+  "items": "items",
+  "total": "Total",
+  "addToCart": "Add to Cart",
+  "payment": "Payment",
+  "payNow": "Pay Now",
+  "orderInProgress": "Order in progress",
+  "placeOrder": "Place Order",
+  "addItems": "Add Items",
+  "categoryName": "Category Name",
+  "description": "Description",
+  "price": "Price"
+}

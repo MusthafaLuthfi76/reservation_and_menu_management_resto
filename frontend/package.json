@@ -41,6 +41,7 @@
     "dayjs": "1.11.13",
     "embla-carousel-react": "8.6.0",
     "framer-motion": "11.18.0",
+    "i18next": "^26.3.1",
     "input-otp": "1.4.2",
     "lodash": "4.18.1",
     "lucide-react": "0.516.0",
@@ -50,6 +51,7 @@
     "react-day-picker": "8.10.1",
     "react-dom": "18.3.1",
     "react-hook-form": "7.56.2",
+    "react-i18next": "^17.0.8",
     "react-resizable-panels": "3.0.1",
     "react-router-dom": "7.5.1",
     "react-scripts": "5.0.1",
@@ -93,7 +95,8 @@
     "eslint-plugin-react-hooks": "5.2.0",
     "globals": "15.15.0",
     "postcss": "8.4.49",
-    "tailwindcss": "3.4.17"
+    "tailwindcss": "3.4.17",
+    "typescript": "^4.9.5"
   },
   "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }

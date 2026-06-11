@@ -1,0 +1,17 @@
+{
+  "welcome": "Selamat Datang!",
+  "table": "Meja",
+  "menu": "Menu",
+  "order": "Pesan",
+  "items": "item",
+  "total": "Total",
+  "addToCart": "Tambah ke Keranjang",
+  "payment": "Pembayaran",
+  "payNow": "Bayar Sekarang",
+  "orderInProgress": "Pesanan sedang diproses",
+  "placeOrder": "Konfirmasi Pesanan",
+  "addItems": "Tambah Item",
+  "categoryName": "Nama Kategori",
+  "description": "Deskripsi",
+  "price": "Harga"
+}
