@@ -1,0 +1,18 @@
+{
+  "welcome": "いらっしゃいませ!",
+  "table": "テーブル",
+  "menu": "メニュー",
+  "menu_guide": "メニューを選んで、注文してください。",
+  "order": "ご注文",
+  "items": "品目",
+  "total": "合計",
+  "addToCart": "カートに追加",
+  "payment": "お支払い",
+  "payNow": "今すぐ支払う",
+  "orderInProgress": "ご注文受付中",
+  "placeOrder": "ご注文を確定",
+  "addItems": "アイテムを追加",
+  "categoryName": "カテゴリー名",
+  "description": "説明",
+  "price": "価格"
+}

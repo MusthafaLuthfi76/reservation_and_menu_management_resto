@@ -6,6 +6,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "../components/ui/s
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../components/ui/dialog";
 import { toast } from "sonner";
 import { Plus, Minus, ShoppingBag, X, ArrowLeft } from "lucide-react";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { useTranslation } from "react-i18next";
 
 
 
@@ -13,6 +15,7 @@ export default function CustomerMenu() {
   const [params] = useSearchParams();
   const tableNumber = parseInt(params.get("table") || "0", 10);
   const nav = useNavigate();
+  const {t} = useTranslation();
 
   const [menu, setMenu] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -24,17 +27,31 @@ export default function CustomerMenu() {
   const [qrisOpen, setQrisOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
+  const [debugError, setDebugError] = useState(null);
+
   const loadAll = useCallback(async () => {
-    const [m, o, c] = await Promise.all([
-      api.get("/menu"),
-      api.get(`/orders/active`, { params: { table_number: tableNumber } }),
-      api.get("/categories"),
-    ]);
-    setMenu(m.data);
-    setActiveOrder(o.data || null);
-    const cats = c.data.map(cat => ({ value: cat.slug, label: cat.name }));
-    setCategories(cats);
-    if (cats.length > 0 && !activeCategory) setActiveCategory(cats[0].value);
+    try {
+      const [m, o, c] = await Promise.all([
+        api.get("/menu"),
+        api.get(`/orders/active`, { params: { table_number: tableNumber } }),
+        api.get("/categories"),
+      ]);
+      setMenu(m.data);
+      setActiveOrder(o.data || null);
+      const cats = c.data.map(cat => ({ value: cat.slug, label: cat.name }));
+      setCategories(cats);
+      if (cats.length > 0 && !activeCategory) setActiveCategory(cats[0].value);
+    } catch (err) {
+      const detail = err?.response?.data?.detail || err?.message || "Failed to load customer menu";
+      setDebugError({
+        detail,
+        url: err?.config?.url,
+        method: err?.config?.method,
+        status: err?.response?.status,
+      });
+      console.error("loadAll error:", err);
+      toast.error(detail);
+    }
   }, [activeCategory, tableNumber]);
 
   useEffect(() => {
@@ -145,6 +162,15 @@ export default function CustomerMenu() {
     );
   }
 
+  {debugError && (
+  <div className="bg-red-100 border border-red-300 text-red-900 p-3 mb-4">
+    <div><strong>Debug:</strong> {debugError.detail}</div>
+    <div>URL: {debugError.url}</div>
+    <div>Method: {debugError.method}</div>
+    <div>Status: {debugError.status ?? "none"}</div>
+  </div>
+)}
+
   return (
     <div className="min-h-screen bg-[#F9F8F6] pb-32" data-testid="customer-menu-page">
       {/* Hero */}
@@ -158,10 +184,10 @@ export default function CustomerMenu() {
         <div className="absolute inset-0 flex flex-col justify-end p-6 md:p-10 text-white">
           <div className="label-eyebrow text-white/70 mb-2">月 · Tsuki Restaurant</div>
           <h1 className="font-serif-jp text-4xl md:text-5xl" data-testid="customer-table-title">
-            Table #{tableNumber} · Irasshaimase
+            {t('table')} #{tableNumber} · {t('welcome!')}
           </h1>
           <p className="text-white/80 text-sm mt-2 max-w-md">
-            Browse the menu, build your order, and we will prepare it with care.
+            {t('menu_guide')}
           </p>
         </div>
       </div>
@@ -182,8 +208,9 @@ export default function CustomerMenu() {
 
       {/* Category nav */}
       <div className="sticky top-0 z-20 bg-[#F9F8F6]/95 backdrop-blur border-b border-[#E5E0D8]">
-        <div className="flex gap-1 overflow-x-auto no-scrollbar px-4 py-3">
-          {categories.map((c) => (
+        <div className="flex items-center justify-between gap-4 px-4 py-3">
+          <div className="flex gap-1 overflow-x-auto no-scrollbar px-4 py-3">
+            {categories.map((c) => (
             <button
               key={c.value}
               onClick={() => {
@@ -199,7 +226,9 @@ export default function CustomerMenu() {
             >
               {c.label}
             </button>
-          ))}
+            ))}
+          </div>
+          <LanguageSwitcher/>
         </div>
       </div>
 

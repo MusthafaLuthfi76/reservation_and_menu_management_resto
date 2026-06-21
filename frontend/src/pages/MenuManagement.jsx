@@ -25,9 +25,15 @@ export default function MenuManagement() {
   const [filter, setFilter] = useState("all");
 
   const load = async () => {
-    const [menuRes, catRes] = await Promise.all([api.get("/menu"), api.get("/categories")]);
-    setItems(menuRes.data);
-    setCategories(catRes.data.map(c => ({ value: c.slug, label: c.name })));
+    try {
+      const [menuRes, catRes] = await Promise.all([api.get("/menu"), api.get("/categories")]);
+      setItems(menuRes.data);
+      setCategories(catRes.data.map(c => ({ value: c.slug, label: c.name })));
+    } catch (err) {
+      toast.error(err?.response?.data?.detail || "Failed to load menu. Is the backend running?");
+      setItems([]);
+      setCategories([]);
+    }
   };
   useEffect(() => { load(); }, []);
 
@@ -79,9 +85,13 @@ export default function MenuManagement() {
 
   const onDelete = async (item) => {
     if (!window.confirm(`Delete "${item.name}"?`)) return;
-    await api.delete(`/menu/${item.id}`);
-    toast.success("Menu item deleted");
-    load();
+    try {
+      await api.delete(`/menu/${item.id}`);
+      toast.success("Menu item deleted");
+      load();
+    } catch (err) {
+      toast.error(err?.response?.data?.detail || "Failed to delete menu item");
+    }
   };
 
   const filtered = filter === "all" ? items : items.filter((i) => i.category === filter);

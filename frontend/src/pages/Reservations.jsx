@@ -12,8 +12,13 @@ export default function Reservations() {
   const [selected, setSelected] = useState(null);
 
   const load = async () => {
-    const { data } = await api.get("/orders");
-    setOrders(data);
+    try {
+      const { data } = await api.get("/orders");
+      setOrders(data);
+    } catch (err) {
+      toast.error(err?.response?.data?.detail || "Failed to load orders. Is the backend running?");
+      setOrders([]);
+    }
   };
   useEffect(() => {
     load();

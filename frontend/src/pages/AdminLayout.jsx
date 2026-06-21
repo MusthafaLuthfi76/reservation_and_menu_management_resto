@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { NavLink, Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { UtensilsCrossed, ScrollText, QrCode, LogOut, Menu, X, Tag } from "lucide-react";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 const navItems = [
   { to: "/admin", label: "Reservations", icon: ScrollText, end: true, testId: "nav-reservations" },
@@ -57,6 +58,7 @@ export default function AdminLayout() {
       <div className="px-4 py-5 border-t border-white/10">
         <div className="text-sm">{user?.name}</div>
         <div className="text-xs text-white/50 mb-3 truncate">{user?.email}</div>
+        <div className="mb-2"><LanguageSwitcher/></div>
         <button
           onClick={onLogout}
           data-testid="admin-logout-button"
