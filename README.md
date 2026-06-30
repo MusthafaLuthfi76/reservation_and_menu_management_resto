@@ -114,6 +114,7 @@ REACT_APP_BACKEND_URL=http://localhost:8001
 
 Install dependencies:
 
+``` npm install xlsx-js-style --legacy-peer-deps
 ```bash
 yarn install
 ```
