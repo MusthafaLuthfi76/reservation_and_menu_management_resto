@@ -428,6 +428,115 @@ api.patch(
   })
 );
 
+// Analytics
+api.get(
+  "/analytics/summary",
+  requireAuth,
+  asyncH(async (req, res) => {
+    const days = Math.min(Math.max(parseInt(req.query.days, 10) || 30, 1), 365);
+    const since = new Date();
+    since.setDate(since.getDate() - (days - 1));
+    since.setHours(0, 0, 0, 0);
+
+    const SALE_STATUSES = [ORDER_STATUS.PAID, ORDER_STATUS.COMPLETE];
+    const dayKey = (d) => d.toISOString().slice(0, 10);
+    const saleDateOf = (o) => new Date(o.finish_time || o.start_time);
+
+    const allOrders = await db
+      .collection("orders")
+      .find({}, { projection: { _id: 0 } })
+      .toArray();
+
+    const salesOrders = allOrders.filter(
+      (o) => SALE_STATUSES.includes(o.status) && saleDateOf(o) >= since
+    );
+
+    // Daily revenue buckets
+    const dailyMap = new Map();
+    for (let i = 0; i < days; i++) {
+      const d = new Date(since);
+      d.setDate(d.getDate() + i);
+      dailyMap.set(dayKey(d), { date: dayKey(d), revenue: 0, orders_count: 0 });
+    }
+    for (const o of salesOrders) {
+      const key = dayKey(saleDateOf(o));
+      const bucket = dailyMap.get(key);
+      if (bucket) {
+        bucket.revenue += o.total;
+        bucket.orders_count += 1;
+      }
+    }
+    const daily = Array.from(dailyMap.values());
+
+    const revenue = salesOrders.reduce((s, o) => s + o.total, 0);
+    const orders_count = salesOrders.length;
+    const avg_order_value = orders_count ? Math.round(revenue / orders_count) : 0;
+
+    const todayKey = dayKey(new Date());
+    const todayBucket = dailyMap.get(todayKey) || { revenue: 0, orders_count: 0 };
+
+    // Top items + category breakdown (needs category lookup per menu item)
+    const menuItems = await db
+      .collection("menu_items")
+      .find({}, { projection: { _id: 0, id: 1, category: 1 } })
+      .toArray();
+    const categoryById = new Map(menuItems.map((m) => [m.id, m.category]));
+
+    const itemMap = new Map();
+    const catMap = new Map();
+    for (const o of salesOrders) {
+      for (const it of o.items || []) {
+        const ie = itemMap.get(it.menu_item_id) || { name: it.name, qty: 0, revenue: 0 };
+        ie.qty += it.quantity;
+        ie.revenue += it.price * it.quantity;
+        itemMap.set(it.menu_item_id, ie);
+
+        const cat = categoryById.get(it.menu_item_id) || "uncategorized";
+        const ce = catMap.get(cat) || { category: cat, qty: 0, revenue: 0 };
+        ce.qty += it.quantity;
+        ce.revenue += it.price * it.quantity;
+        catMap.set(cat, ce);
+      }
+    }
+    const top_items = Array.from(itemMap.values())
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 8);
+    const by_category = Array.from(catMap.values()).sort((a, b) => b.revenue - a.revenue);
+
+    // Payment method breakdown
+    const pmMap = new Map();
+    for (const o of salesOrders) {
+      const m = o.payment_method || "unknown";
+      const pe = pmMap.get(m) || { method: m, revenue: 0, count: 0 };
+      pe.revenue += o.total;
+      pe.count += 1;
+      pmMap.set(m, pe);
+    }
+    const payment_methods = Array.from(pmMap.values()).sort((a, b) => b.revenue - a.revenue);
+
+    // Status breakdown across all orders (operational signal, not range-limited)
+    const statusMap = new Map();
+    for (const o of allOrders) {
+      statusMap.set(o.status, (statusMap.get(o.status) || 0) + 1);
+    }
+    const status_breakdown = Array.from(statusMap.entries()).map(([status, count]) => ({
+      status,
+      count,
+    }));
+
+    res.json({
+      range: { days, from: dayKey(since), to: todayKey },
+      totals: { revenue, orders_count, avg_order_value },
+      today: { revenue: todayBucket.revenue, orders_count: todayBucket.orders_count },
+      daily,
+      top_items,
+      by_category,
+      payment_methods,
+      status_breakdown,
+    });
+  })
+);
+
 app.use("/api", api);
 
 // Centralised error handler

@@ -10,6 +10,7 @@ import Reservations from "./pages/Reservations";
 import MenuManagement from "./pages/MenuManagement";
 import TableManagement from "./pages/TableManagement";
 import CategoryManagement from "./pages/CategoryManagement";
+import Analytics from "./pages/Analytics";
 import CustomerMenu from "./pages/CustomerMenu";
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
             }
           >
             <Route index element={<Reservations />} />
+            <Route path="analytics" element={<Analytics />} />
             <Route path="menu" element={<MenuManagement />} />
             <Route path="tables" element={<TableManagement />} />
             <Route path="categories" element={<CategoryManagement />} />

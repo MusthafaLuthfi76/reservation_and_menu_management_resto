@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { NavLink, Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { UtensilsCrossed, ScrollText, QrCode, LogOut, Menu, X, Tag } from "lucide-react";
+import { UtensilsCrossed, ScrollText, QrCode, LogOut, Menu, X, Tag, BarChart3 } from "lucide-react";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 const navItems = [
   { to: "/admin", label: "Reservations", icon: ScrollText, end: true, testId: "nav-reservations" },
+  { to: "/admin/analytics", label: "Analytics", icon: BarChart3, testId: "nav-analytics" },
   { to: "/admin/menu", label: "Menu", icon: UtensilsCrossed, testId: "nav-menu" },
   { to: "/admin/categories", label: "Categories", icon: Tag, testId: "nav-categories" },
   { to: "/admin/tables", label: "Tables · QR", icon: QrCode, testId: "nav-tables" },
