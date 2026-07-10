@@ -14,5 +14,6 @@
   "addItems": "アイテムを追加",
   "categoryName": "カテゴリー名",
   "description": "説明",
-  "price": "価格"
+  "price": "価格",
+  "restaurant": "レストラン"
 }

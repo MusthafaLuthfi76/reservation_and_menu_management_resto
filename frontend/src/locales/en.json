@@ -14,5 +14,6 @@
   "addItems": "Add Items",
   "categoryName": "Category Name",
   "description": "Description",
-  "price": "Price"
+  "price": "Price",
+  "restaurant": "Restaurant"
 }

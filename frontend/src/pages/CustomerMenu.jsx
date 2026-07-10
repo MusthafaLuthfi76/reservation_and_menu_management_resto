@@ -182,7 +182,7 @@ export default function CustomerMenu() {
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60" />
         <div className="absolute inset-0 flex flex-col justify-end p-6 md:p-10 text-white">
-          <div className="label-eyebrow text-white/70 mb-2">月 · Tsuki Restaurant</div>
+          <div className="label-eyebrow text-white/70 mb-2">月 · Tsuki {t('restaurant')}</div>
           <h1 className="font-serif-jp text-4xl md:text-5xl" data-testid="customer-table-title">
             {t('table')} #{tableNumber} · {t('welcome!')}
           </h1>

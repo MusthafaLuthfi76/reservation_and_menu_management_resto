@@ -14,5 +14,6 @@
   "addItems": "Tambah Item",
   "categoryName": "Nama Kategori",
   "description": "Deskripsi",
-  "price": "Harga"
+  "price": "Harga",
+  "restaurant": "Restoran"
 }
