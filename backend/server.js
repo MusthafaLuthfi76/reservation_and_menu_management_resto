@@ -215,13 +215,25 @@ api.post(
   requireAuth,
   asyncH(async (req, res) => {
     const name = (req.body.name || "").trim();
+    const name_en = req.body.name_en !== undefined ? String(req.body.name_en).trim() : "";
+    const name_ja = req.body.name_ja !== undefined ? String(req.body.name_ja).trim() : "";
+    const name_id = req.body.name_id !== undefined ? String(req.body.name_id).trim() : "";
+
     if (!name) return res.status(400).json({ detail: "Category name is required" });
+    if (req.body.name_en !== undefined && !name_en) return res.status(400).json({ detail: "name_en must be a non-empty string" });
+    if (req.body.name_ja !== undefined && !name_ja) return res.status(400).json({ detail: "name_ja must be a non-empty string" });
+    if (req.body.name_id !== undefined && !name_id) return res.status(400).json({ detail: "name_id must be a non-empty string" });
+
     const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
     const existing = await db.collection("categories").findOne({ slug });
     if (existing) return res.status(400).json({ detail: "Category already exists" });
+
     const doc = {
       id: randomUUID(),
       name,
+      name_en: name_en || name,
+      name_ja: name_ja || name,
+      name_id: name_id || name,
       slug,
       description: req.body.description || "",
       created_at: nowIso(),
@@ -238,10 +250,30 @@ api.put(
   asyncH(async (req, res) => {
     const name = (req.body.name || "").trim();
     if (!name) return res.status(400).json({ detail: "Category name is required" });
+
+    if (req.body.name_en !== undefined && typeof req.body.name_en !== "string") {
+      return res.status(400).json({ detail: "name_en must be a string" });
+    }
+    if (req.body.name_ja !== undefined && typeof req.body.name_ja !== "string") {
+      return res.status(400).json({ detail: "name_ja must be a string" });
+    }
+    if (req.body.name_id !== undefined && typeof req.body.name_id !== "string") {
+      return res.status(400).json({ detail: "name_id must be a string" });
+    }
+
     const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
     const dup = await db.collection("categories").findOne({ slug, id: { $ne: req.params.id } });
     if (dup) return res.status(400).json({ detail: "Category name already exists" });
-    const update = { name, slug, description: req.body.description || "" };
+
+    const update = {
+      name,
+      name_en: req.body.name_en !== undefined ? req.body.name_en.trim() || name : name,
+      name_ja: req.body.name_ja !== undefined ? req.body.name_ja.trim() || name : name,
+      name_id: req.body.name_id !== undefined ? req.body.name_id.trim() || name : name,
+      slug,
+      description: req.body.description || "",
+    };
+
     const r = await db.collection("categories").updateOne({ id: req.params.id }, { $set: update });
     if (r.matchedCount === 0) return res.status(404).json({ detail: "Category not found" });
     const doc = await db.collection("categories").findOne({ id: req.params.id }, { projection: { _id: 0 } });
@@ -571,10 +603,38 @@ async function seed() {
   await db.collection("categories").createIndex({ slug: 1 }, { unique: true });
   if ((await db.collection("categories").countDocuments()) === 0) {
     const defaultCategories = [
-      { name: "Appetizer", slug: "appetizer", description: "Small dishes to start" },
-      { name: "Main Course", slug: "main", description: "Main dishes" },
-      { name: "Dessert", slug: "dessert", description: "Sweet treats" },
-      { name: "Drinks", slug: "drinks", description: "Beverages" },
+      { 
+        name: "Appetizer",
+        name_en: "Appetizer",
+        name_ja: "前菜",
+        name_id: "Hidangan Pembuka",
+        slug: "appetizer", 
+        description: "Small dishes to start" 
+      },
+      { 
+        name: "Main Course", 
+        name_en: "Main Course",
+        name_ja: "メインコース",
+        name_id: "Hidangan Utama", 
+        slug: "main", 
+        description: "Main dishes" 
+      },
+      { 
+        name: "Dessert",
+        name_en: "Dessert",
+        name_ja: "デザート",
+        name_id: "Pencuci Mulut", 
+        slug: "dessert", 
+        description: "Sweet treats" 
+      },
+      { 
+        name: "Drinks",
+        name_en: "Drinks",
+        name_ja: "ドリンク",
+        name_id: "Minuman",
+        slug: "drinks", 
+        description: "Beverages" 
+      },
     ];
     for (const c of defaultCategories) {
       await db.collection("categories").insertOne({

@@ -4,7 +4,7 @@
   "menu": "Menu",
   "menu_guide": "Browse the menu, build your order, and we will prepare it with care.",
   "order": "Order",
-  "items": "items",
+  "items": "item(s)",
   "total": "Total",
   "addToCart": "Add to Cart",
   "payment": "Payment",
@@ -14,5 +14,18 @@
   "addItems": "Add Items",
   "categoryName": "Category Name",
   "description": "Description",
-  "price": "Price"
+  "price": "Price",
+  "restaurant": "Restaurant",
+  "add": "Add",
+  "out of stock": "Out of stock",
+  "your order": "Your order",
+  "add to order": "Add to order",
+  "each": "Per item",
+  "subtotal": "Subtotal",
+  "place order": "Place order",
+  "placing order": "Placing order",
+  "order in progress": "Order in progress",
+  "view order": "View Order",
+  "settle the bill": "Settle the bill",
+  "pay at cashier":"Pay at Cashier"
 }

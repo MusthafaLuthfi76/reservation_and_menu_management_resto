@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Tag } from "lucide-react";
 
-const emptyForm = { name: "", description: "" };
+const emptyForm = { name: "", name_en: "", name_ja: "", name_id: "", description: "" };
 
 export default function CategoryManagement() {
   const [categories, setCategories] = useState([]);
@@ -33,7 +33,13 @@ export default function CategoryManagement() {
   const openAdd = () => { setEditing(null); setForm(emptyForm); setOpen(true); };
   const openEdit = (cat) => {
     setEditing(cat);
-    setForm({ name: cat.name, description: cat.description || "" });
+    setForm({
+      name: cat.name || "",
+      name_en: cat.name_en || "",
+      name_ja: cat.name_ja || "",
+      name_id: cat.name_id || "",
+      description: cat.description || ""
+    });
     setOpen(true);
   };
 
@@ -192,12 +198,37 @@ export default function CategoryManagement() {
           </DialogHeader>
           <form onSubmit={onSave} className="space-y-4">
             <div>
-              <Label className="label-eyebrow">Name</Label>
+              <Label className="label-eyebrow">Name (Default)</Label>
               <Input className="rounded-sm mt-2" value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                 data-testid="category-form-name" required
                 placeholder="e.g. Appetizer" />
             </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div>
+                <Label className="label-eyebrow">Name (English)</Label>
+                <Input className="rounded-sm mt-2" value={form.name_en}
+                  onChange={(e) => setForm({ ...form, name_en: e.target.value })}
+                  data-testid="category-form-name-en"
+                  placeholder="Appetizer (EN)" />
+              </div>
+              <div>
+                <Label className="label-eyebrow">Name (日本語)</Label>
+                <Input className="rounded-sm mt-2" value={form.name_ja}
+                  onChange={(e) => setForm({ ...form, name_ja: e.target.value })}
+                  data-testid="category-form-name-ja"
+                  placeholder="前菜 (JA)" />
+              </div>
+              <div>
+                <Label className="label-eyebrow">Name (Indonesia)</Label>
+                <Input className="rounded-sm mt-2" value={form.name_id}
+                  onChange={(e) => setForm({ ...form, name_id: e.target.value })}
+                  data-testid="category-form-name-id"
+                  placeholder="Pembuka (ID)" />
+              </div>
+            </div>
+
             <div>
               <Label className="label-eyebrow">Description</Label>
               <Textarea className="rounded-sm mt-2" rows={3} value={form.description}
