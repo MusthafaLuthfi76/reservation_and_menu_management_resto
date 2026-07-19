@@ -4,7 +4,7 @@
   "menu": "メニュー",
   "menu_guide": "メニューを選んで、注文してください。",
   "order": "ご注文",
-  "items": "品目",
+  "items": "点",
   "total": "合計",
   "addToCart": "カートに追加",
   "payment": "お支払い",
@@ -15,5 +15,17 @@
   "categoryName": "カテゴリー名",
   "description": "説明",
   "price": "価格",
-  "restaurant": "レストラン"
+  "restaurant": "レストラン",
+  "add": "追加する",
+  "out of stock": "売り切れ",
+  "your order": "お客様のご注文一覧",
+  "add to order": "ご注文に追加する",
+  "each": "ずつ",
+  "subtotal": "小計",
+  "place order": "注文する",
+  "placing order": "注文中",
+  "order in progress": "注文中の一覧",
+  "view order": "注文一覧を見る",
+  "settle the bill": "お会計",
+  "pay at cashier":"レジで払う"
 }

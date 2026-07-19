@@ -15,5 +15,18 @@
   "categoryName": "Nama Kategori",
   "description": "Deskripsi",
   "price": "Harga",
-  "restaurant": "Restoran"
+  "restaurant": "Restoran",
+  "add": "Tambah",
+  "out of stock": "Stok habis",
+  "your order": "Pesanan anda",
+  "add to order": "Tambahkan ke pesanan",
+  "each": "per item",
+  "subtotal": "Subtotal",
+  "place order": "Pesan",
+  "placing order": "Memproses pesanan",
+  "order in progress": "Pesanan dalam proses",
+  "view order": "Lihat pesanan",
+  "settle the bill": "Bayar pesanan",
+  "pay at cashier":"Bayar di kasir"
+
 }

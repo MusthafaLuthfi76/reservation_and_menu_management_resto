@@ -5,7 +5,7 @@ import { Button } from "../components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "../components/ui/sheet";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../components/ui/dialog";
 import { toast } from "sonner";
-import { Plus, Minus, ShoppingBag, X, ArrowLeft } from "lucide-react";
+import { Plus, Minus, ShoppingBag, X, ArrowLeft, Menu } from "lucide-react";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
 
@@ -15,9 +15,10 @@ export default function CustomerMenu() {
   const [params] = useSearchParams();
   const tableNumber = parseInt(params.get("table") || "0", 10);
   const nav = useNavigate();
-  const {t} = useTranslation();
-
+  const {t, i18n} = useTranslation();
   const [menu, setMenu] = useState([]);
+  const lang = (i18n.language || "en").split("-")[0];
+  const [categoryOpen, setCategoryOpen] = useState(false);
   const [categories, setCategories] = useState([]);
   const [cart, setCart] = useState({}); // {menu_item_id: qty}
   const [activeOrder, setActiveOrder] = useState(null);
@@ -38,7 +39,10 @@ export default function CustomerMenu() {
       ]);
       setMenu(m.data);
       setActiveOrder(o.data || null);
-      const cats = c.data.map(cat => ({ value: cat.slug, label: cat.name }));
+      const cats = c.data.map(cat => ({
+        value: cat.slug,
+        label: cat[`name_${lang}`] || cat.name || cat.label || cat.slug,
+      }));
       setCategories(cats);
       if (cats.length > 0 && !activeCategory) setActiveCategory(cats[0].value);
     } catch (err) {
@@ -52,7 +56,7 @@ export default function CustomerMenu() {
       console.error("loadAll error:", err);
       toast.error(detail);
     }
-  }, [activeCategory, tableNumber]);
+  }, [activeCategory, tableNumber, lang]);
 
   useEffect(() => {
     if (tableNumber) loadAll();
@@ -138,10 +142,10 @@ export default function CustomerMenu() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#F9F8F6] p-8" data-testid="no-table">
         <div className="max-w-sm text-center">
-          <div className="label-eyebrow mb-3">月 Tsuki</div>
-          <h1 className="font-serif-jp text-3xl mb-2">Welcome</h1>
+          <div className="label-eyebrow mb-3">Sumatera Cafe Resto</div>
+          <h1 className="font-serif-jp text-3xl mb-2">{t('welcome')} !</h1>
           <p className="text-sm text-[#8A817C] mb-6">
-            Please scan the QR code on your table to view the menu.
+            {t('menu_guide')}
           </p>
         </div>
       </div>
@@ -182,11 +186,11 @@ export default function CustomerMenu() {
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60" />
         <div className="absolute inset-0 flex flex-col justify-end p-6 md:p-10 text-white">
-          <div className="label-eyebrow text-white/70 mb-2">月 · Tsuki {t('restaurant')}</div>
+          <div className="label-eyebrow text-white/70 mb-2">Sumatera Cafe Resto</div>
           <h1 className="font-serif-jp text-4xl md:text-5xl" data-testid="customer-table-title">
-            {t('table')} #{tableNumber} · {t('welcome!')}
+            {t('table')} #{tableNumber} · <br></br>{t('welcome')} !
           </h1>
-          <p className="text-white/80 text-sm mt-2 max-w-md">
+          <p className="text-white/80 mt-2 max-w-md">
             {t('menu_guide')}
           </p>
         </div>
@@ -196,40 +200,70 @@ export default function CustomerMenu() {
       {activeOrder && (
         <div className="bg-[#FDF6E3] border-y border-[#E5E0D8] px-4 sm:px-6 py-3 flex items-center justify-between gap-3" data-testid="active-order-banner">
           <div className="text-xs sm:text-sm text-[#8B5A2B] min-w-0">
-            <span className="font-semibold">Order in progress</span>
-            <span className="hidden sm:inline"> · {activeOrder.items.reduce((s, i) => s + i.quantity, 0)} item(s)</span>
+            <span className="font-semibold">{t('order in progress')}</span>
+            <span className="hidden sm:inline"> · {activeOrder.items.reduce((s, i) => s + i.quantity, 0)} {t('items')}</span>
             <span> · {formatJPY(activeOrder.total)}</span>
           </div>
           <Button onClick={() => setPayOpen(true)} size="sm" className="btn-aka rounded-sm h-9 px-4 text-xs flex-shrink-0" data-testid="open-payment-button">
-            Pay Now
+            {t('view order')}
           </Button>
         </div>
       )}
 
       {/* Category nav */}
-      <div className="sticky top-0 z-20 bg-[#F9F8F6]/95 backdrop-blur border-b border-[#E5E0D8]">
-        <div className="flex items-center justify-between gap-4 px-4 py-3">
-          <div className="flex gap-1 overflow-x-auto no-scrollbar px-4 py-3">
-            {categories.map((c) => (
-            <button
-              key={c.value}
-              onClick={() => {
-                setActiveCategory(c.value);
-                document.getElementById(`cat-${c.value}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
-              }}
-              data-testid={`category-${c.value}`}
-              className={`whitespace-nowrap px-4 py-2 text-xs tracking-wider uppercase border-b-2 transition-colors ${
-                activeCategory === c.value
-                  ? "border-[#C93A3E] text-[#1C1C1C]"
-                  : "border-transparent text-[#8A817C]"
-              }`}
+      <div className="sticky top-0 z-20 bg-[#F9F8F6]/95 backdrop-blur border-b border-[#E5E0D8]">      
+        <div className="row flex items-center justify-between gap-4 px-4 py-3">
+          <button className="md:hidden px-3 py-2 text-sm border rounded-sm"
+            onClick={() => setCategoryOpen((open) => !open)}
             >
-              {c.label}
-            </button>
-            ))}
+            <Menu size={18} />
+          </button>
+          <div className={`hidden md:block`}>
+            <div className="flex gap-1 overflow-x-auto no-scrollbar px-4 py-3">
+              {categories.map((c) => (
+              <button
+                key={c.value}
+                onClick={() => {
+                  setActiveCategory(c.value);
+                  document.getElementById(`cat-${c.value}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+                }}
+                data-testid={`category-${c.value}`}
+                className={`whitespace-nowrap px-4 py-2 text-xs tracking-wider uppercase border-b-2 transition-colors ${
+                  activeCategory === c.value
+                    ? "border-[#C93A3E] text-[#1C1C1C]"
+                    : "border-transparent text-[#8A817C]"
+                }`}
+              >
+                {c.label}
+              </button>
+              ))}
+            </div>
           </div>
           <LanguageSwitcher/>
         </div>
+        <div className={`${categoryOpen ? "block" : "hidden"} md:hidden`}>
+          <div className="row flex items-center justify-between gap-4 px-4 py-3">
+            <div className="flex gap-1 overflow-x-auto no-scrollbar px-4 py-3">
+              {categories.map((c) => (
+              <button
+                key={c.value}
+                onClick={() => {
+                  setActiveCategory(c.value);
+                  document.getElementById(`cat-${c.value}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+                }}
+                data-testid={`category-${c.value}`}
+                className={`whitespace-nowrap px-4 py-2 text-xs tracking-wider uppercase border-b-2 transition-colors ${
+                  activeCategory === c.value
+                    ? "border-[#C93A3E] text-[#1C1C1C]"
+                    : "border-transparent text-[#8A817C]"
+                }`}
+              >
+                {c.label}
+              </button>
+              ))}
+            </div>
+          </div>
+        </div>        
       </div>
 
       {/* Items */}
@@ -270,7 +304,7 @@ export default function CustomerMenu() {
                         <Button onClick={() => inc(item.id)} variant="outline" disabled={item.available === false}
                           className="rounded-sm h-9 px-4 text-xs border-[#1C1C1C] hover:bg-[#1C1C1C] hover:text-white disabled:border-[#B8B1A8] disabled:text-[#B8B1A8] disabled:bg-transparent"
                           data-testid={`add-to-cart-${item.id}`}>
-                          {item.available === false ? "Out of stock" : "Add"}
+                          {item.available === false ? t('out of stock') : t('add')}
                         </Button>
                       )}
                     </div>
@@ -291,7 +325,7 @@ export default function CustomerMenu() {
         >
           <span className="flex items-center gap-2">
             <ShoppingBag size={18} />
-            <span className="text-sm font-semibold">{cartCount} item(s)</span>
+            <span className="text-sm font-semibold">{cartCount} {t('items')}</span>
           </span>
           <span className="font-serif-jp text-xl">{formatJPY(cartTotal)}</span>
         </button>
@@ -302,7 +336,7 @@ export default function CustomerMenu() {
         <SheetContent side="bottom" className="rounded-t-sm max-h-[85vh] bg-[#F9F8F6]" data-testid="cart-drawer">
           <SheetHeader>
             <SheetTitle className="font-serif-jp text-2xl text-left">
-              {activeOrder ? "Add to Order" : "Your Order"} · Table #{tableNumber}
+              {activeOrder ? t('add to order') : t('your order')} · {t('table')} #{tableNumber}
             </SheetTitle>
           </SheetHeader>
           <div className="mt-6 space-y-3 max-h-[50vh] overflow-y-auto">
@@ -310,7 +344,7 @@ export default function CustomerMenu() {
               <div key={i.id} className="flex justify-between items-center bg-white border border-[#E5E0D8] p-3 rounded-sm">
                 <div className="flex-1">
                   <div className="font-medium text-sm">{i.name}</div>
-                  <div className="text-xs text-[#8A817C]">{formatJPY(i.price)} each</div>
+                  <div className="text-xs text-[#8A817C]">{formatJPY(i.price)} {t('each')}</div>
                   {i.available === false && (
                     <div className="mt-1 text-[11px] font-semibold uppercase tracking-wider text-[#C93A3E]">Out of stock</div>
                   )}
@@ -326,12 +360,12 @@ export default function CustomerMenu() {
           </div>
           <div className="divider-sumi my-4" />
           <div className="flex justify-between items-baseline mb-4">
-            <div className="label-eyebrow">Subtotal</div>
+            <div className="label-eyebrow">{t('subtotal')}</div>
             <div className="font-serif-jp text-3xl">{formatJPY(cartTotal)}</div>
           </div>
           <Button onClick={submitOrder} disabled={submitting || cartItems.length === 0 || cartItems.some((item) => item.available === false)}
             className="btn-aka w-full h-12 rounded-sm tracking-wide" data-testid="place-order-button">
-            {submitting ? "Placing…" : activeOrder ? "Add to Order" : "Place Order"}
+            {submitting ? t('placing order') : activeOrder ? t('add to order') : t('place order')}
           </Button>
         </SheetContent>
       </Sheet>
@@ -340,7 +374,7 @@ export default function CustomerMenu() {
       <Dialog open={payOpen} onOpenChange={setPayOpen}>
         <DialogContent className="rounded-sm max-w-md" data-testid="payment-dialog">
           <DialogHeader>
-            <DialogTitle className="font-serif-jp text-2xl">Settle the Bill</DialogTitle>
+            <DialogTitle className="font-serif-jp text-2xl">{t('settle the bill')}</DialogTitle>
           </DialogHeader>
           {activeOrder && (
             <div className="space-y-4">
@@ -359,12 +393,12 @@ export default function CustomerMenu() {
               <div className="grid grid-cols-2 gap-3 pt-2">
                 <Button variant="outline" onClick={() => choosePayment("cashier")}
                   className="rounded-sm h-12" data-testid="pay-cashier-button">
-                  Pay at Cashier
+                  {t('pay at cashier')}
                 </Button>
-                <Button onClick={() => choosePayment("qris")}
+                {/* <Button onClick={() => choosePayment("qris")}
                   className="btn-aka rounded-sm h-12" data-testid="pay-qris-button">
                   Pay via QRIS
-                </Button>
+                </Button> */}
               </div>
             </div>
           )}
