@@ -3,6 +3,7 @@
   "table": "Meja",
   "menu": "Menu",
   "menu_guide": "Silahkan pilih menu dan tekan tombol pesan.",
+  "scan_guide": "Silahkan pindai kode QR di meja Anda. Atau hubungi staf restoran.",
   "order": "Pesan",
   "items": "item",
   "total": "Total",
@@ -28,5 +29,4 @@
   "view order": "Lihat pesanan",
   "settle the bill": "Bayar pesanan",
   "pay at cashier":"Bayar di kasir"
-
 }

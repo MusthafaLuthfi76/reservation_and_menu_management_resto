@@ -23,7 +23,7 @@ export default function AdminLayout() {
     <>
       <div className="px-6 py-6 lg:py-8 border-b border-white/10 flex items-center justify-between">
         <div>
-          <div className="font-display-jp text-2xl">月 Tsuki</div>
+          <div className="font-display-jp text-2xl">Sumatera Cafe Resto</div>
           <div className="label-eyebrow text-white/50 mt-1">Operations</div>
         </div>
         <button
@@ -105,7 +105,7 @@ export default function AdminLayout() {
           >
             <Menu size={20} />
           </button>
-          <div className="font-display-jp text-lg">月 Tsuki</div>
+          <div className="font-display-jp text-lg">Sumatera Cafe Resto</div>
           <div className="text-xs label-eyebrow">{currentTitle}</div>
         </div>
         <Outlet />

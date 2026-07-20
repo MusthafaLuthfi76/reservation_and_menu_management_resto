@@ -333,6 +333,19 @@ api.delete(
   })
 );
 
+api.get(
+  "/tables/validate",
+  asyncH(async (req, res) => {
+    const table_number = Number(req.query.table_number);
+    if (!Number.isInteger(table_number)) return res.status(400).json({ valid: false });
+    if (!Number.isFinite(table_number)) return res.status(400).json({ valid: false });
+    const exists = await db.collection("tables").findOne({ table_number }, { projection: { _id: 0 } });
+    res.json({ valid: !!exists });
+  })
+);
+
+
+
 // Orders
 api.post(
   "/orders",

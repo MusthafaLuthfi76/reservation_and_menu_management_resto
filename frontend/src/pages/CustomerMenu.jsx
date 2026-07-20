@@ -5,18 +5,21 @@ import { Button } from "../components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "../components/ui/sheet";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../components/ui/dialog";
 import { toast } from "sonner";
-import { Plus, Minus, ShoppingBag, X, ArrowLeft, Menu } from "lucide-react";
+import { Plus, Minus, ShoppingBag, ArrowUp, Menu } from "lucide-react";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
+import { decodeTableId } from "../lib/utils";
 
 
 
 export default function CustomerMenu() {
   const [params] = useSearchParams();
-  const tableNumber = parseInt(params.get("table") || "0", 10);
+  const tableNumber = decodeTableId(params.get("table"));
   const nav = useNavigate();
   const {t, i18n} = useTranslation();
   const [menu, setMenu] = useState([]);
+  const [showGoTop, setShowGoTop] = useState(false);
+  const [tableValid, setTableValid] = useState(false);
   const lang = (i18n.language || "en").split("-")[0];
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [categories, setCategories] = useState([]);
@@ -29,6 +32,8 @@ export default function CustomerMenu() {
   const [submitting, setSubmitting] = useState(false);
 
   const [debugError, setDebugError] = useState(null);
+
+  const goToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
   const loadAll = useCallback(async () => {
     try {
@@ -58,9 +63,26 @@ export default function CustomerMenu() {
     }
   }, [activeCategory, tableNumber, lang]);
 
-  useEffect(() => {
-    if (tableNumber) loadAll();
-  }, [tableNumber, loadAll]);
+  useEffect( () => {
+    const validateAndLoad = async () => {
+      const { data } = await api.get("/tables/validate", { params: { table_number: tableNumber } });
+      console.log("Table validation result:", data)
+      if (data.valid) {
+        loadAll();
+        setTableValid(true);
+      } else {
+        setTableValid(false);
+      }
+    };
+    if (tableNumber) {
+      validateAndLoad();
+    }
+
+    const onScroll = () => setShowGoTop(window.scrollY > 360);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [tableNumber, loadAll, nav]);
 
   const grouped = useMemo(() => {
     const g = {};
@@ -138,14 +160,18 @@ export default function CustomerMenu() {
     loadAll();
   };
 
-  if (!tableNumber) {
+  if (tableValid == false) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#F9F8F6] p-8" data-testid="no-table">
         <div className="max-w-sm text-center">
           <div className="label-eyebrow mb-3">Sumatera Cafe Resto</div>
-          <h1 className="font-serif-jp text-3xl mb-2">{t('welcome')} !</h1>
+          <h1 className="font-serif-jp text-3xl mb-2">いらっしゃいませ !</h1>
           <p className="text-sm text-[#8A817C] mb-6">
-            {t('menu_guide')}
+            テーブルにあるQRコードを読み取ってください。<br></br>または、レストランのスタッフにお声がけください。
+          </p>
+          <h1 className="font-serif-jp text-3xl mb-2">Welcome !</h1>
+          <p className="text-sm text-[#8A817C] mb-6">
+            Please scan the QR code on your table. <br></br>Or contact the restaurant staff.
           </p>
         </div>
       </div>
@@ -188,7 +214,7 @@ export default function CustomerMenu() {
         <div className="absolute inset-0 flex flex-col justify-end p-6 md:p-10 text-white">
           <div className="label-eyebrow text-white/70 mb-2">Sumatera Cafe Resto</div>
           <h1 className="font-serif-jp text-4xl md:text-5xl" data-testid="customer-table-title">
-            {t('table')} #{tableNumber} · <br></br>{t('welcome')} !
+            {t('table')} <strong>#{tableNumber}</strong> · <br></br>{t('welcome')} !
           </h1>
           <p className="text-white/80 mt-2 max-w-md">
             {t('menu_guide')}
@@ -378,7 +404,7 @@ export default function CustomerMenu() {
           </DialogHeader>
           {activeOrder && (
             <div className="space-y-4">
-              <div className="bg-white border border-[#E5E0D8] rounded-sm p-4 space-y-2 max-h-60 overflow-y-auto">
+              <div className="sticky top-0 bg-white border border-[#E5E0D8] rounded-sm p-4 space-y-2 max-h-60 overflow-y-auto">
                 {activeOrder.items.map((it, idx) => (
                   <div key={idx} className="flex justify-between text-sm">
                     <span>{it.quantity}× {it.name}</span>
@@ -387,19 +413,25 @@ export default function CustomerMenu() {
                 ))}
               </div>
               <div className="flex justify-between items-baseline">
-                <div className="label-eyebrow">Total</div>
+                <div className="label-eyebrow">{t('total')}</div>
                 <div className="font-serif-jp text-3xl">{formatJPY(activeOrder.total)}</div>
               </div>
-              <div className="grid grid-cols-2 gap-3 pt-2">
+              <div className="grid gap-3 pt-2">
+                <Button variant="outline" onClick={() => choosePayment("cashier")}
+                  className="btn-aka rounded-sm h-12" data-testid="pay-cashier-button">
+                  {t('pay at cashier')}
+                </Button>
+              </div>
+              {/* <div className="grid grid-cols-2 gap-3 pt-2">
                 <Button variant="outline" onClick={() => choosePayment("cashier")}
                   className="rounded-sm h-12" data-testid="pay-cashier-button">
                   {t('pay at cashier')}
                 </Button>
-                {/* <Button onClick={() => choosePayment("qris")}
+                <Button onClick={() => choosePayment("qris")}
                   className="btn-aka rounded-sm h-12" data-testid="pay-qris-button">
                   Pay via QRIS
-                </Button> */}
-              </div>
+                </Button>
+              </div> */}
             </div>
           )}
         </DialogContent>
@@ -428,6 +460,17 @@ export default function CustomerMenu() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {showGoTop && (
+        <button
+          onClick={goToTop}
+          aria-label="Go to top"
+          data-testid="go-top-button"
+          className="fixed right-4 bottom-20 z-40 btn-aka rounded-full w-11 h-11 flex items-center justify-center shadow-xl"
+        >
+          <ArrowUp size={18} />
+        </button>
+      )}
     </div>
   );
 }
