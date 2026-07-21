@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../components/
 import { QRCodeCanvas } from "qrcode.react";
 import { toast } from "sonner";
 import { Plus, Trash2, Download, QrCode } from "lucide-react";
+import { encodeTableId } from "../lib/utils";
 
 export default function TableManagement() {
   const [tables, setTables] = useState([]);
@@ -40,7 +41,7 @@ export default function TableManagement() {
   };
 
   const baseUrl = `${window.location.origin}/menu`;
-  const qrUrlFor = (n) => `${baseUrl}?table=${n}`;
+  const qrUrlFor = (n) => `${baseUrl}?table=${encodeTableId(n)}`;
 
   const downloadQR = () => {
     const canvas = qrRef.current?.querySelector("canvas");
